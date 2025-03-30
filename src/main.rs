@@ -2,7 +2,8 @@ use avian3d::{
     PhysicsPlugins,
     prelude::{Collider, RigidBody},
 };
-use bevy::{color::palettes::css::GRAY, prelude::*, scene::SceneInstanceReady};
+use bevy::{color::palettes::css::GRAY, prelude::*};
+use bevy_asset_loader::prelude::*;
 use bevy_skein::SkeinPlugin;
 use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::*;
@@ -19,15 +20,33 @@ fn main() {
             TnuaControllerPlugin::new(FixedUpdate),
             TnuaAvian3dPlugin::new(FixedUpdate),
         ))
+        .init_state::<MyStates>()
+        .add_loading_state(
+            LoadingState::new(MyStates::AssetLoading).load_collection::<UgalaBugala>(),
+        )
         .add_plugins((CameraPlugin, PlayerPlugin))
         .add_systems(Startup, (setup_level))
         .run();
+}
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+pub enum MyStates {
+    #[default]
+    AssetLoading,
+    Next,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct UgalaBugala {
+    #[asset(path = "demo.gltf")]
+    pub player: Handle<Scene>,
 }
 
 fn setup_level(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mesh_assets: Res<UgalaBugala>,
 ) {
     // Spawn the ground.
     commands.spawn((
@@ -45,4 +64,6 @@ fn setup_level(
         RigidBody::Static,
         Collider::cuboid(4.0, 1.0, 4.0),
     ));
+
+    commands.spawn(SceneRoot(mesh_assets.player.clone()));
 }

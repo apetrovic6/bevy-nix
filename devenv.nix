@@ -5,6 +5,9 @@ p = with pkgs; [
     pkg-config
     udev
     alsa-lib 
+    alsa-plugins 
+    alsa-tools
+    alsa-utils
     vulkan-loader
     xorg.libX11 
     xorg.libXcursor 
@@ -12,12 +15,9 @@ p = with pkgs; [
     xorg.libXrandr # To use the x11 feature
     libxkbcommon 
     wayland
+    pulseaudio
   ];
 in {
-  # overlays = [
-  #   inputs.nixGL.overlay
-  # ];
-  
   cachix.enable = false;
   # https://devenv.sh/packages/
   packages = p;
