@@ -21,11 +21,9 @@ fn main() {
             TnuaAvian3dPlugin::new(FixedUpdate),
         ))
         .init_state::<MyStates>()
-        .add_loading_state(
-            LoadingState::new(MyStates::AssetLoading).load_collection::<UgalaBugala>(),
-        )
+        .add_loading_state(LoadingState::new(MyStates::AssetLoading).load_collection::<MyAssets>())
         .add_plugins((CameraPlugin, PlayerPlugin))
-        .add_systems(Startup, (setup_level))
+        .add_systems(OnEnter(MyStates::Next), (setup_level))
         .run();
 }
 
@@ -37,8 +35,8 @@ pub enum MyStates {
 }
 
 #[derive(AssetCollection, Resource)]
-pub struct UgalaBugala {
-    #[asset(path = "demo.gltf")]
+pub struct MyAssets {
+    #[asset(path = "demo.gltf#Scene)")]
     pub player: Handle<Scene>,
 }
 
@@ -46,7 +44,7 @@ fn setup_level(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mesh_assets: Res<UgalaBugala>,
+    my_assets: Res<MyAssets>,
 ) {
     // Spawn the ground.
     commands.spawn((
@@ -65,5 +63,5 @@ fn setup_level(
         Collider::cuboid(4.0, 1.0, 4.0),
     ));
 
-    commands.spawn(SceneRoot(mesh_assets.player.clone()));
+    commands.spawn(SceneRoot(my_assets.player.clone()));
 }
