@@ -15,7 +15,6 @@ p = with pkgs; [
     xorg.libXrandr # To use the x11 feature
     libxkbcommon 
     wayland
-    pulseaudio
   ];
 in {
   cachix.enable = false;

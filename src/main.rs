@@ -21,7 +21,11 @@ fn main() {
             TnuaAvian3dPlugin::new(FixedUpdate),
         ))
         .init_state::<MyStates>()
-        .add_loading_state(LoadingState::new(MyStates::AssetLoading).load_collection::<MyAssets>())
+        .add_loading_state(
+            LoadingState::new(MyStates::AssetLoading)
+                .continue_to_state(MyStates::Next)
+                .load_collection::<MyAssets>(),
+        )
         .add_plugins((CameraPlugin, PlayerPlugin))
         .add_systems(OnEnter(MyStates::Next), (setup_level))
         .run();
@@ -36,7 +40,7 @@ pub enum MyStates {
 
 #[derive(AssetCollection, Resource)]
 pub struct MyAssets {
-    #[asset(path = "demo.gltf#Scene)")]
+    #[asset(path = "demo.gltf#Scene0")]
     pub player: Handle<Scene>,
 }
 
@@ -63,5 +67,8 @@ fn setup_level(
         Collider::cuboid(4.0, 1.0, 4.0),
     ));
 
-    commands.spawn(SceneRoot(my_assets.player.clone()));
+    commands.spawn((
+        SceneRoot(my_assets.player.clone()),
+        Transform::from_xyz(0.0, 2.0, 0.0),
+    ));
 }

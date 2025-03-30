@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
+use crate::MyStates;
+
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_camera_and_lights);
+        app.add_systems(OnEnter(MyStates::Next), setup_camera_and_lights);
     }
 }
 

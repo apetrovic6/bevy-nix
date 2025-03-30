@@ -6,12 +6,14 @@ use bevy_tnua::{
 };
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
 
+use crate::MyStates;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.register_type::<Character>()
-            .add_systems(Startup, (setup_player, apply_controls))
+            .add_systems(OnEnter(MyStates::Next), (setup_player, apply_controls))
             .add_systems(
                 FixedUpdate,
                 apply_controls.in_set(TnuaUserControlsSystemSet),
