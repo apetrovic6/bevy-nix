@@ -19,6 +19,7 @@ bevy_asset_loader = { version = "0.22.0", features = [
   "3d",
   "standard_dynamic_assets",
 ] }
+leafwing-input-manager = { version = "0.16.0", features = [] }
 
 # Set max log levels. This helps avoid unwanted low-severity log spam, which can affect performance.
 log = { version = "0.4", features = [

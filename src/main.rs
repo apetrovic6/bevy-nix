@@ -7,7 +7,7 @@ use bevy_asset_loader::prelude::*;
 use bevy_skein::SkeinPlugin;
 use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::*;
-use plugins::{camera::CameraPlugin, player::PlayerPlugin};
+use plugins::{camera::CameraPlugin, input::InputPlugin, player::PlayerPlugin};
 
 mod plugins;
 
@@ -19,14 +19,15 @@ fn main() {
             PhysicsPlugins::default(),
             TnuaControllerPlugin::new(FixedUpdate),
             TnuaAvian3dPlugin::new(FixedUpdate),
+            InputPlugin,
         ))
+        .add_plugins((CameraPlugin, PlayerPlugin))
         .init_state::<MyStates>()
         .add_loading_state(
             LoadingState::new(MyStates::AssetLoading)
                 .continue_to_state(MyStates::Next)
                 .load_collection::<MyAssets>(),
         )
-        .add_plugins((CameraPlugin, PlayerPlugin))
         .add_systems(OnEnter(MyStates::Next), (setup_level))
         .run();
 }
@@ -67,8 +68,8 @@ fn setup_level(
         Collider::cuboid(4.0, 1.0, 4.0),
     ));
 
-    commands.spawn((
-        SceneRoot(my_assets.player.clone()),
-        Transform::from_xyz(0.0, 2.0, 0.0),
-    ));
+    // commands.spawn((
+    //     SceneRoot(my_assets.player.clone()),
+    //     Transform::from_xyz(0.0, 2.0, 0.0),
+    // ));
 }

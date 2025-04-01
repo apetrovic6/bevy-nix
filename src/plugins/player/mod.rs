@@ -5,15 +5,22 @@ use bevy_tnua::{
     prelude::{TnuaBuiltinJump, TnuaBuiltinWalk, TnuaController},
 };
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
+use leafwing_input_manager::{
+    InputManagerBundle,
+    prelude::{ActionState, InputMap},
+};
 
-use crate::MyStates;
+use crate::{MyAssets, MyStates};
+
+use super::input::Action;
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.register_type::<Character>()
+        app.register_type::<Player>()
             .add_systems(OnEnter(MyStates::Next), (setup_player, apply_controls))
+            .add_systems(Update, jump)
             .add_systems(
                 FixedUpdate,
                 apply_controls.in_set(TnuaUserControlsSystemSet),
@@ -22,7 +29,7 @@ impl Plugin for PlayerPlugin {
                 // log the component from the gltf spawn
                 |trigger: Trigger<SceneInstanceReady>,
                  children: Query<&Children>,
-                 characters: Query<&Character>| {
+                 characters: Query<&Player>| {
                     for entity in children.iter_descendants(trigger.entity()) {
                         let Ok(character) = characters.get(entity) else {
                             continue;
@@ -36,21 +43,26 @@ impl Plugin for PlayerPlugin {
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-pub struct Character {
+pub struct Player {
     name: String,
 }
 
 fn setup_player(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    my_assets: Res<MyAssets>,
 ) {
+    let input_map = InputMap::new([
+        (Action::Walk, KeyCode::ArrowUp),
+        (Action::Jump, KeyCode::KeyK),
+    ]);
+
     commands.spawn((
-        Mesh3d(meshes.add(Capsule3d {
-            radius: 0.5,
-            half_length: 0.5,
-        })),
+        // Mesh3d(meshes.add(Capsule3d {
+        //     radius: 0.5,
+        //     half_length: 0.5,
+        // })),
         MeshMaterial3d(materials.add(Color::from(css::DARK_CYAN))),
         Transform::from_xyz(0.0, 2.0, 0.0),
         // The player character needs to be configured as a dynamic rigid body of the physics
@@ -64,10 +76,8 @@ fn setup_player(
         // Tnua can fix the rotation, but the character will still get rotated before it can do so.
         // By locking the rotation we can prevent this.
         LockedAxes::ROTATION_LOCKED,
-        // SceneRoot(asset_server.load(
-        //     // Change this to your exported gltf file
-        //     GltfAssetLabel::Scene(0).from_asset("demo.gltf"),
-        // )),
+        SceneRoot(my_assets.player.clone()),
+        InputManagerBundle::with_map(input_map),
     ));
 }
 
@@ -105,9 +115,25 @@ fn apply_controls(keyboard: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Tnu
         ..Default::default()
     });
 
-    // Feed the jump action every frame as long as the player holds the jump button. If the player
-    // stops holding the jump button, simply stop feeding the action.
-    if keyboard.pressed(KeyCode::Space) {
+    if keyboard.pressed(KeyCode::Space) {}
+}
+
+// Query for the `ActionState` component in your game logic systems!
+fn jump(
+    action_query: Query<&ActionState<Action>, With<SceneRoot>>,
+    mut controller_query: Query<&mut TnuaController>,
+) {
+    let Ok(action_state) = action_query.get_single() else {
+        println!("No player");
+        return;
+    };
+
+    let Ok(mut controller) = controller_query.get_single_mut() else {
+        return;
+    };
+
+    // Each action has a button-like state of its own that you can check
+    if action_state.just_pressed(&Action::Jump) {
         controller.action(TnuaBuiltinJump {
             // The height is the only mandatory field of the jump button.
             height: 4.0,
