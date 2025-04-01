@@ -114,8 +114,6 @@ fn apply_controls(keyboard: Res<ButtonInput<KeyCode>>, mut query: Query<&mut Tnu
         // sensible defaults. Refer to the `TnuaBuiltinWalk`'s documentation to learn what they do.
         ..Default::default()
     });
-
-    if keyboard.pressed(KeyCode::Space) {}
 }
 
 // Query for the `ActionState` component in your game logic systems!

@@ -49,7 +49,6 @@ fn setup_level(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    my_assets: Res<MyAssets>,
 ) {
     // Spawn the ground.
     commands.spawn((
@@ -67,9 +66,4 @@ fn setup_level(
         RigidBody::Static,
         Collider::cuboid(4.0, 1.0, 4.0),
     ));
-
-    // commands.spawn((
-    //     SceneRoot(my_assets.player.clone()),
-    //     Transform::from_xyz(0.0, 2.0, 0.0),
-    // ));
 }
